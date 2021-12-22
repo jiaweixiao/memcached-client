@@ -122,21 +122,24 @@ void printGlobalStats(struct config* config) {
   gettimeofday(&currentTime, NULL);
   double timeDiff = currentTime.tv_sec - global_stats.last_time.tv_sec + 1e-6*(currentTime.tv_sec - global_stats.last_time.tv_sec);
   double rps = global_stats.requests/timeDiff;
-  double std = getStdDev(&global_stats.response_time);
-  double q90 = findQuantile(&global_stats.response_time, .90);
-  double q95 = findQuantile(&global_stats.response_time, .95);
+  //double std = getStdDev(&global_stats.response_time);
+  //double q90 = findQuantile(&global_stats.response_time, .90);
+  //double q95 = findQuantile(&global_stats.response_time, .95);
   double q99 = findQuantile(&global_stats.response_time, .99);
 
-  printf("%10s,%8s,%16s, %8s,%11s,%10s,%13s,%10s,%10s,%10s,%12s,%10s,%10s,%11s,%14s\n", "timeDiff", "rps", "requests", "gets", "sets",  "hits", "misses", "avg_lat", "90th", "95th", "99th", "std", "min", "max", "avgGetSize");
-  printf("%10f, %9.1f,  %10d, %10d, %10d, %10d, %10d, %10f, %10f, %10f, %10f, %10f, %10f, %10f, %10f\n", 
-		timeDiff, rps, global_stats.requests, global_stats.gets, global_stats.sets, global_stats.hits, global_stats.misses,
-		1000*getAvg(&global_stats.response_time), 1000*q90, 1000*q95, 1000*q99, 1000*std, 1000*global_stats.response_time.min, 1000*global_stats.response_time.max, getAvg(&global_stats.get_size));
-  int i;
-  printf("Outstanding requests per worker:\n");
-  for(i=0; i<config->n_workers; i++){
-    printf("%d ", config->workers[i]->n_requests);
-  } 
-  printf("\n");
+  //printf("%10s,%8s,%16s, %8s,%11s,%10s,%13s,%10s,%10s,%10s,%12s,%10s,%10s,%11s,%14s\n", "timeDiff", "rps", "requests", "gets", "sets",  "hits", "misses", "avg_lat", "90th", "95th", "99th", "std", "min", "max", "avgGetSize");
+  //printf("%10f, %9.1f,  %10d, %10d, %10d, %10d, %10d, %10f, %10f, %10f, %10f, %10f, %10f, %10f, %10f\n", 
+		//timeDiff, rps, global_stats.requests, global_stats.gets, global_stats.sets, global_stats.hits, global_stats.misses,
+		//1000*getAvg(&global_stats.response_time), 1000*q90, 1000*q95, 1000*q99, 1000*std, 1000*global_stats.response_time.min, 1000*global_stats.response_time.max, getAvg(&global_stats.get_size));
+  //int i;
+  //printf("Outstanding requests per worker:\n");
+  //for(i=0; i<config->n_workers; i++){
+  //  printf("%d ", config->workers[i]->n_requests);
+  //} 
+  //printf("\n");
+  printf("%10.1f, %9.1f, %10d, %10d, %10.3f, %10.3f, %10.3f, %10.3f\n", 
+		timeDiff, rps, global_stats.gets, global_stats.sets,
+		1000*getAvg(&global_stats.response_time), 1000*q99, 1000*global_stats.response_time.min, 1000*global_stats.response_time.max);
   //Reset stats if do not dump latency histogram
   if(config->dump_latency_file == NULL && config->pre_load == 0) {
     printf("Reset global_stats\n");
@@ -175,6 +178,7 @@ void statsLoop(struct config* config) {
   sleep(2);
   printf("Stats:\n");
   printf("-------------------------\n");
+  printf("%10s,%8s,%8s,%11s,%10s,%12s,%10s,%11s\n", "timeDiff", "rps", "gets", "sets",  "avg_lat", "99th", "min", "max");
   while(1) {
     printGlobalStats(config);
     sleep(config->stats_time);
