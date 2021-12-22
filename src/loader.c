@@ -26,6 +26,7 @@ void printUsage() {
                 "        [-N arg provide a key population distribution file]\n"
                 "        [-u use UDP protocl (default: TCP)]\n"
                 "        [-o arg  ouput distribution file, if input needs to be scaled]\n"
+                "        [-O arg  dump latency histogram to file]\n"
                 "        [-r ATTEMPTED requests per second (default: max out rps)]\n"
                 "        [-s server configuration file]\n"
                 "        [-S dataset scaling factor]\n"
@@ -70,6 +71,7 @@ struct config* parseArgs(int argc, char** argv) {
   config->interarrival_dist = NULL;
   config->input_file=NULL;
   config->output_file=NULL;
+  config->dump_latency_file=NULL;
   config->server_memory=1024;
   config->server_file=NULL;
   int i;
@@ -79,7 +81,7 @@ struct config* parseArgs(int argc, char** argv) {
   }
 
   int c;
-  while ((c = getopt (argc, argv, "a:c:d:D:ef:g:hi:jk:l:L:m:MnN:o:p:ur:s:S:t:T:w:W:xz")) != -1) {
+  while ((c = getopt (argc, argv, "a:c:d:D:ef:g:hi:jk:l:L:m:MnN:o:O:p:ur:s:S:t:T:w:W:xz")) != -1) {
     switch (c) {
 
       case 'a':
@@ -172,6 +174,11 @@ struct config* parseArgs(int argc, char** argv) {
       case 'o':
         config->output_file=calloc(strlen(optarg)+1, sizeof(char));
         strcpy(config->output_file, optarg);
+        break;
+
+      case 'O':
+        config->dump_latency_file=calloc(strlen(optarg)+1, sizeof(char));
+        strcpy(config->dump_latency_file, optarg);
         break;
 
       case 'r':

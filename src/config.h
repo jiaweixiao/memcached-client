@@ -35,6 +35,7 @@ struct config {
   char* server_file;
   char* input_file;
   char* output_file;
+  char* dump_latency_file;
   int server_port[MAX_SERVERS];
   int server_memory;
   int keysToPreload;

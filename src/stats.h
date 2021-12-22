@@ -31,10 +31,10 @@ struct stat {
   double s2;
   double min;
   double max;
-  int fulls[1000];
-  int thousands[1000];
-  int millis[50010];
-  int micros[10000];
+  long fulls[1000];
+  long thousands[1000];
+  long millis[50010];
+  long micros[10000];
 };
 
 struct memcached_stats {
@@ -45,7 +45,6 @@ struct memcached_stats {
   int sets;
   int hits;
   int misses;
-  int multi_gets;
   int incrs;
   int adds;
   int replaces;

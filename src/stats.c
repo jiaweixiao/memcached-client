@@ -47,6 +47,23 @@ double getStdDev(struct stat* stat) {
   return sqrt((stat->s0*stat->s2 - stat->s1*stat->s1)/(stat->s0*(stat->s0 - 1)));
 }//End getStdDev()
 
+void dumpLatencyHistogram(struct config* config){
+
+  FILE* fileOut = fopen(config->dump_latency_file, "w");
+  double i, quantile, prev = .0;
+
+  printf("Dump latency histogram to file: %s\n", config->dump_latency_file);
+  fprintf(fileOut, "Value,Percentile\n");
+  for( i = .0; i <= 1.0; i += 0.0001) {
+    quantile = findQuantile(&global_stats.response_time, i);
+    if( quantile != prev) {
+      fprintf(fileOut, "%f,%f\n", quantile*1000, i);
+    }
+    prev = quantile;
+  }
+  fclose(fileOut);
+}
+
 //Should we exit because time has expired?
 void checkExit(struct config* config) {
 
@@ -56,6 +73,9 @@ void checkExit(struct config* config) {
   double totalTime = currentTime.tv_sec - start_time.tv_sec + 1e-6*(currentTime.tv_sec - start_time.tv_sec);
   if(totalTime >= runTime && runTime >0) {
     printf("Ran for %f, exiting\n", totalTime);
+    if(config->dump_latency_file != NULL){
+      dumpLatencyHistogram(config);
+    }
     exit(0);
   }
 
@@ -64,8 +84,8 @@ void checkExit(struct config* config) {
 double findQuantile(struct stat* stat, double quantile) { 
 
   //Find the 95th-percentile
-  int nTillQuantile = global_stats.response_time.s0 * quantile;
-  int  count = 0;
+  long nTillQuantile = global_stats.response_time.s0 * quantile;
+  long count = 0;
   int i;
   for( i = 0; i < 10000; i++) {
     count += stat->micros[i];
@@ -82,7 +102,7 @@ double findQuantile(struct stat* stat, double quantile) {
       return quantile;
     }
   }//End for i
-  printf("count  %d\n", count);
+  printf("count  %ld\n", count);
 
   for( i = 0; i < 1000; i++) {
     count += stat->fulls[i];
@@ -117,8 +137,25 @@ void printGlobalStats(struct config* config) {
     printf("%d ", config->workers[i]->n_requests);
   } 
   printf("\n");
-  //Reset stats
-  memset(&global_stats, 0, sizeof(struct memcached_stats));
+  //Reset stats if do not dump latency histogram
+  if(config->dump_latency_file == NULL && config->pre_load == 0) {
+    printf("Reset global_stats\n");
+    memset(&global_stats, 0, sizeof(struct memcached_stats));
+  } else {
+    // Reset except response_time
+    global_stats.requests = 0;
+    global_stats.ops = 0;
+    global_stats.gets = 0;
+    global_stats.multigets = 0;
+    global_stats.sets = 0;
+    global_stats.hits = 0;
+    global_stats.misses = 0;
+    global_stats.incrs = 0;
+    global_stats.adds = 0;
+    global_stats.replaces = 0;
+    global_stats.deletes = 0;
+    memset(&(global_stats.get_size), 0, sizeof(struct stat));
+  }
   global_stats.response_time.min = 1000000;
   global_stats.last_time = currentTime;
 
