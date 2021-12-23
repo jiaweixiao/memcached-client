@@ -102,7 +102,7 @@ double findQuantile(struct stat* stat, double quantile) {
       return quantile;
     }
   }//End for i
-  printf("count  %ld\n", count);
+  //printf("count  %ld\n", count);
 
   for( i = 0; i < 1000; i++) {
     count += stat->fulls[i];

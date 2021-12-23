@@ -165,7 +165,7 @@ double harmonicSum(int size, double alpha){
 }
 struct dep_dist* loadDepFile(struct config* config) { 
 
-  printf("Loading key value file...");
+  printf("Loading key value file...\n");
   struct dep_dist* dist = malloc(sizeof(struct dep_dist));
 
   char lineBuffer[1024];
@@ -196,6 +196,9 @@ struct dep_dist* loadDepFile(struct config* config) {
   config->keysToPreload = floor(1024.0*1024*config->server_memory/(avg_size+150));
   if(config->keysToPreload>lines) config->keysToPreload=lines-1;
   fclose(file);
+  printf("Average Size = %.3f Bytes\n", avg_size);
+  printf("Keys to preload = %d\n", config->keysToPreload);
+  printf("Size to preload = %.3f MB\n", avg_size*config->keysToPreload/1024/1024);
 #ifdef FLEXUS
   MAGIC2(200, 0);
 #endif
@@ -204,7 +207,7 @@ struct dep_dist* loadDepFile(struct config* config) {
 
 struct dep_dist* loadAndScaleDepFile(struct config* config) { 
 
-  printf("Loading key value file...");
+  printf("Loading key value file...\n");
   struct dep_dist* dist = malloc(sizeof(struct dep_dist));
 
   char lineBuffer[1024];
@@ -252,6 +255,7 @@ struct dep_dist* loadAndScaleDepFile(struct config* config) {
           if(config->keysToPreload > newLines) config->keysToPreload = newLines;
  	  printf("Average Size = %10.5f\n", avg_size ); 
  	  printf("Keys to Preload = %d\n", config->keysToPreload ); 
+ 	  printf("Size to preload = %.3f MB\n", avg_size*config->keysToPreload/1024/1024);
 	  while(i>=0){
 	    struct dep_entry* entry = malloc(sizeof(struct dep_entry));
 	    entry->cdf = prev-(1.0/pow(newLines-i, ALPHA))/sum2; 
