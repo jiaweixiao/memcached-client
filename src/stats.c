@@ -50,16 +50,15 @@ double getStdDev(struct stat* stat) {
 void dumpLatencyHistogram(struct config* config){
 
   FILE* fileOut = fopen(config->dump_latency_file, "w");
-  double i, quantile, prev = .0;
+  double i, q, qget, qset;
 
   printf("Dump latency histogram to file: %s\n", config->dump_latency_file);
-  fprintf(fileOut, "Value,Percentile\n");
+  fprintf(fileOut, "Percentile,Value,Vget,Vset\n");
   for( i = .0; i <= 1.0; i += 0.0001) {
-    quantile = findQuantile(&global_stats.response_time, i);
-    if( quantile != prev) {
-      fprintf(fileOut, "%f,%f\n", quantile*1000, i);
-    }
-    prev = quantile;
+    q = findQuantile(&global_stats.response_time, i);
+    qget = findQuantile(&global_stats.get_response_time, i);
+    qset = findQuantile(&global_stats.set_response_time, i);
+    fprintf(fileOut, "%f,%f,%f,%f\n", i, q*1000, qget*1000, qset*1000);
   }
   fclose(fileOut);
 }
@@ -84,7 +83,7 @@ void checkExit(struct config* config) {
 double findQuantile(struct stat* stat, double quantile) { 
 
   //Find the 95th-percentile
-  long nTillQuantile = global_stats.response_time.s0 * quantile;
+  long nTillQuantile = stat->s0 * quantile;
   long count = 0;
   int i;
   for( i = 0; i < 10000; i++) {
@@ -145,7 +144,7 @@ void printGlobalStats(struct config* config) {
     printf("Reset global_stats\n");
     memset(&global_stats, 0, sizeof(struct memcached_stats));
   } else {
-    // Reset except response_time
+    // Reset except response_time, get_response_time, set_response_time
     global_stats.requests = 0;
     global_stats.ops = 0;
     global_stats.gets = 0;
@@ -160,6 +159,8 @@ void printGlobalStats(struct config* config) {
     memset(&(global_stats.get_size), 0, sizeof(struct stat));
   }
   global_stats.response_time.min = 1000000;
+  global_stats.get_response_time.min = 1000000;
+  global_stats.set_response_time.min = 1000000;
   global_stats.last_time = currentTime;
 
   checkExit(config);

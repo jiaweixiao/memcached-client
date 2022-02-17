@@ -50,6 +50,8 @@ struct memcached_stats {
   int replaces;
   int deletes;
   struct stat response_time;
+  struct stat get_response_time;
+  struct stat set_response_time;
   struct stat get_size;
   struct timeval last_time;
 };

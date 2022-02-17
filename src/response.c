@@ -220,10 +220,12 @@ int processResponse(struct response* response, int final, double difftime){
   global_stats.requests++;
   if(type == TYPE_GET) {
     global_stats.gets++;
-    addSample(&global_stats.get_size, response->value_size);
+    // addSample(&global_stats.get_size, response->value_size);
+    addSample(&global_stats.get_response_time, difftime);
 //    printf("Size is %d\n", response->value_size);
   } else if(type == TYPE_SET) {
     global_stats.sets++;
+    addSample(&global_stats.set_response_time, difftime);
   } else if(type == TYPE_MULTIGET) {
     global_stats.multigets++;
   } else if(type == TYPE_INCR) {
