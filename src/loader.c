@@ -26,7 +26,7 @@ void printUsage() {
                 "        [-N arg provide a key population distribution file]\n"
                 "        [-u use UDP protocl (default: TCP)]\n"
                 "        [-o arg  ouput distribution file, if input needs to be scaled]\n"
-                "        [-O arg  dump latency histogram to file]\n"
+                "        [-O arg  dump latency histgram or each points to file (end with [.hist|.raw])]\n"
                 "        [-r ATTEMPTED requests per second (default: max out rps)]\n"
                 "        [-s server configuration file]\n"
                 "        [-S dataset scaling factor]\n"
@@ -261,6 +261,16 @@ void printConfiguration(struct config* config) {
   } else {
     printf("Naggle's algorithm: False\n");
   }
+
+  if (config->dump_latency_file != NULL) {
+    if (str_endwith(config->dump_latency_file, ".hist"))
+      printf("Dump latency histogram to file: %s\n", config->dump_latency_file);
+    else if (str_endwith(config->dump_latency_file, ".raw"))
+      printf("Dump latency raw data points to file: %s\n", config->dump_latency_file);
+    else
+      printf("printConfiguration(): -O option should end with .raw or .hist\n");
+  }
+
   printf("\n\n");
 
 }//End printConfiguration()

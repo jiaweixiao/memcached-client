@@ -37,6 +37,21 @@ struct stat {
   long micros[10000];
 };
 
+/* 
+ * Sample raw data
+ * The size of array is 500k, thus the longest 
+ * statistic interval with 1% sample rate is 
+ * 1000sec when rps equals 50k/sec.
+ */
+#define RAW_SAMPLE_COUNT 500000
+#define RAW_SAMPLE_INTERVAL 100
+struct raw_stat {
+  int count;
+  int curr;
+  double sendtime[RAW_SAMPLE_COUNT];
+  float latency[RAW_SAMPLE_COUNT];
+};
+
 struct memcached_stats {
   int requests;
   int ops;
@@ -54,6 +69,7 @@ struct memcached_stats {
   struct stat set_response_time;
   struct stat get_size;
   struct timeval last_time;
+  struct raw_stat raw_time;
 };
 
 extern pthread_mutex_t stats_lock;
@@ -62,7 +78,8 @@ struct memcached_stats global_stats;
 double findQuantile(struct stat* stat, double quantile);
 void printGlobalStats();
 void checkExit(struct config* config);
-void addSample(struct stat* stat, float sample);
+void addSample(struct stat* stat, float value,
+  struct raw_stat* raw_time, struct request* request);
 double getAvg(struct stat* stat);
 double getStdDev(struct stat* stat);
 void statsLoop(struct config* config);

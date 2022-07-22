@@ -1,4 +1,5 @@
 #include "response.h"
+#include "stats.h"
 #ifdef GEM5
 #include "m5op.h"
 #endif
@@ -209,7 +210,7 @@ int processResponse(struct response* response, int final, double difftime){
   }
 
   if(type == TYPE_GET || type == TYPE_MULTIGET) {
-    addSample(&global_stats.get_size, response->value_size);
+    addSample(&global_stats.get_size, response->value_size, NULL, NULL);
   }
 
   if(!(errorCode == 1 || final == 1)){
@@ -221,18 +222,19 @@ int processResponse(struct response* response, int final, double difftime){
   if(type == TYPE_GET) {
     global_stats.gets++;
     // addSample(&global_stats.get_size, response->value_size);
-    addSample(&global_stats.get_response_time, difftime);
+    addSample(&global_stats.get_response_time, difftime, NULL, NULL);
 //    printf("Size is %d\n", response->value_size);
   } else if(type == TYPE_SET) {
     global_stats.sets++;
-    addSample(&global_stats.set_response_time, difftime);
+    addSample(&global_stats.set_response_time, difftime, NULL, NULL);
   } else if(type == TYPE_MULTIGET) {
     global_stats.multigets++;
   } else if(type == TYPE_INCR) {
     global_stats.incrs++;
   }
 
-  addSample(&global_stats.response_time, difftime);
+  addSample(&global_stats.response_time, difftime,
+    &global_stats.raw_time, response->request);
 
   pthread_mutex_unlock(&stats_lock);
 

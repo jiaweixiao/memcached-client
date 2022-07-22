@@ -3,6 +3,7 @@
 #include "mt.h"
 #include "worker.h"
 #include "mt19937p.h"
+#include "stats.h"
 
 // Let's us replace the  random function
 int randomFunction(){
@@ -71,7 +72,7 @@ void timestampTest() {
     struct timeval timestamp2;
     gettimeofday(&timestamp2, NULL);
     double diff = (timestamp2.tv_sec - timestamp1.tv_sec) + 1e-6*(timestamp2.tv_usec - timestamp1.tv_usec);
-    addSample(&res, diff);
+    addSample(&res, diff, NULL, NULL);
   }
   printf("Timestamp resolution %.9f s\n", getAvg(&res));
 
@@ -188,3 +189,13 @@ void readBlock(int fd, void* buffer, int readSize) {
 
 }//End readBlock()
 
+int str_endwith(const char *str, const char *suffix) {
+  size_t str_len = strlen(str);
+  size_t suffix_len = strlen(suffix);
+  if (!str || !suffix) {
+    printf("str_endwith(): null str\n");
+    return 0;
+  }
+  return (str_len >= suffix_len) &&
+         (!memcmp(str + str_len - suffix_len, suffix, suffix_len));
+}

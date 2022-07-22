@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <arpa/inet.h>
-#include "stats.h"
 
 #define DEBUG_READ_WRITE 0
 struct worker;
@@ -23,5 +22,6 @@ int randomFunction();
 int parRandomFunction(struct worker* worker);
 double round(double d);
 
+int str_endwith(const char *str, const char *suffix);
 
 #endif
