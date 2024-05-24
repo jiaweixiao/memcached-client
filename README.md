@@ -18,8 +18,8 @@ Example:
      -w 4 -S 30 -D 16384 -j -T 3
    ```
 2. First preload data
-  ```bash
-  src/loader \
+   ```bash
+   src/loader \
     -a twitter_dataset/twitter_dataset_30x \
     -s src/local_servers.txt \
     -S 1 \
@@ -28,10 +28,10 @@ Example:
     -T 60 \
     -c <num of connections> \
     -w <num of workers> \
-  ```
+   ```
 3. Then run
-  ```bash
-  src/loader \
+   ```bash
+   src/loader \
     -a twitter_dataset/twitter_dataset_<scale>x \
     -s src/local_servers.txt \
     -g <get ratio> \
@@ -40,4 +40,4 @@ Example:
     -w <numb of workers> \
     -t <running time> \
     -r <target rps>
-  ```
+   ```
