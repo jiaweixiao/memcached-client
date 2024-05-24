@@ -17,7 +17,7 @@ Example:
      -s src/local_servers.txt \
      -w 4 -S 30 -D 16384 -j -T 3
    ```
-3. First preload data
+2. First preload data
   ```bash
   src/loader \
     -a twitter_dataset/twitter_dataset_30x \
@@ -39,5 +39,5 @@ Example:
     -c <num of connections> \
     -w <numb of workers> \
     -t <running time> \
-    -r <rps>
+    -r <target rps>
   ```
