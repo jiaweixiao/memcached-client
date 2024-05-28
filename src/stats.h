@@ -20,6 +20,8 @@
 //#define MIN_HISTOGRAM_VALUE 10e-6
 //#define MAX_HISTOGRAM_VALUE 10
 
+extern volatile int should_terminate;
+
 struct config;
 
 struct timeval start_time;

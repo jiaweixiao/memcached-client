@@ -73,7 +73,7 @@ struct request{
   int id;
   struct request* next_request;
   int request_type;
-  int warmup_index;
+  // int warmup_index;
   int bad_multiget;
 };
 

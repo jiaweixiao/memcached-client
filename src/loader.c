@@ -7,6 +7,8 @@
 
 int verbose;
 
+volatile int should_terminate;
+
 void printUsage() {
 
         printf( "usage: loader [-option]\n"
@@ -31,7 +33,7 @@ void printUsage() {
                 "        [-s server configuration file]\n"
                 "        [-S dataset scaling factor]\n"
                 "        [-t arg  runtime of loadtesting in seconds (default: run forever)]\n"
-                "        [-T arg  interval between stats printing (default: 1)]\n"
+                "        [-T arg  interval between stats printing (ms)(default: 1000)]\n"
                 "        [-w number of worker threads]\n"
                 "        [-x run timing tests instead of loadtesting]\n");
 }
@@ -50,7 +52,7 @@ struct config* parseArgs(int argc, char** argv) {
   config->scaling_factor = 0;
   config->multiget_frac = 0.0;
   config->run_time  = -1;
-  config->stats_time  = 1;
+  config->stats_time  = 1000;
   config->n_connections_total = 1;
   config->naggles = 0;
   config->fixed_size = -1;
@@ -345,6 +347,18 @@ void cleanUp(struct config* config) {
   free(config);
 }
 
+void* exitMonitor(void* arg) {
+  struct config* config = (struct config*)arg;
+  int i;
+  for(i = 0; i < config->n_workers; i++) {
+    pthread_join(config->workers[i]->thread, NULL);
+  }
+  // printf("You are warmed up, sir\n");
+  should_terminate = 1;
+  return NULL;
+  // exit(0);
+}
+
 
 int main(int argc, char** argv){
   
@@ -353,6 +367,10 @@ int main(int argc, char** argv){
 
   setupLoad(config);
   createWorkers(config);
+
+  pthread_t exit_monitor;
+  pthread_create(&exit_monitor, NULL, exitMonitor, config);
+
   statsLoop(config);
   return 0;
 

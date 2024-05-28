@@ -286,19 +286,22 @@ struct request* generateRequest(struct config* config, struct worker* worker) {
   int valueSize = 0;
   char* key = NULL;
 
-  int warmup_index = 0;
+  // int warmup_index = 0;
   if(config->dep_dist != NULL) {
   //printf("generating..\n");
     struct dep_entry* dep_entry = NULL;
     if(config->pre_load) {
 
-      if(worker->warmup_key == -1) {
-        printf("doh\n");
-      }
-      dep_entry = config->dep_dist->dep_entries[config->dep_dist->n_entries - worker->warmup_key_check-1];
-      warmup_index = worker->warmup_key;
-      worker->warmup_key--;
-      worker->warmup_key_check++;
+      // if(worker->warmup_key == -1) {
+      //   printf("doh\n");
+      // }
+      // dep_entry = config->dep_dist->dep_entries[config->dep_dist->n_entries - worker->warmup_key_check-1];
+      dep_entry = config->dep_dist->dep_entries[worker->present_index];
+      worker->present_index += config->n_workers;
+      // printf("working on %ld\n", config->dep_dist->n_entries - worker->warmup_key_check-1);
+      // warmup_index = worker->warmup_key;
+      // worker->warmup_key--;
+      // worker->warmup_key_check++;
       key = dep_entry->key;
       valueSize = dep_entry->size;
       value = malloc(sizeof(char) * valueSize);
@@ -427,7 +430,7 @@ struct request* generateRequest(struct config* config, struct worker* worker) {
 #endif
   }
 
-  request->warmup_index = warmup_index;
+  // request->warmup_index = warmup_index;
   return request;
 
 

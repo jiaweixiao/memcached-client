@@ -128,6 +128,8 @@ void sendCallback(int fd, short eventType, void* args) {
   timeadd.tv_sec = 0; timeadd.tv_usec = interarrival_time; 
   timeradd(&(worker->last_write_time), &timeadd, &(worker->last_write_time));
 
+  // printf("worker1: %d %d\n", worker->present_index, worker->config->dep_dist->n_entries);
+
   struct request* request = NULL;
   if(worker->incr_fix_queue_tail != worker->incr_fix_queue_head) {
     request = worker->incr_fix_queue[worker->incr_fix_queue_head];
@@ -135,9 +137,12 @@ void sendCallback(int fd, short eventType, void* args) {
 //    printf("fixing\n");
   } else {
   //  printf(")preload %d warmup key %d\n", worker->config->pre_load, worker->warmup_key);
-    if(worker->config->pre_load == 1 && worker->warmup_key < 0) {
+    // printf("worker2: %d %d\n", worker->present_index, worker->config->dep_dist->n_entries);
+    if(worker->config->pre_load == 1 && worker->present_index >= worker->config->keysToPreload) {
+      // printf("worker3: %d %d\n", worker->present_index, worker->config->dep_dist->n_entries);
       return;
     } else {
+      // printf("worker4: %d %d\n", worker->present_index, worker->config->dep_dist->n_entries);
       request = generateRequest(worker->config, worker);
     }
   }
@@ -175,11 +180,13 @@ void receiveCallback(int fd, short eventType, void* args) {
 
   receiveResponse(request, diff); 
   deleteRequest(request);
-  worker->received_warmup_keys++;
+  // worker->received_warmup_keys++;
+  worker->present_recv_index+=worker->config->n_workers;
 
-  if(worker->config->pre_load == 1 && worker->config->dep_dist != NULL && worker->received_warmup_keys == worker->config->keysToPreload){
-    printf("You are warmed up, sir\n");
-    exit(0);
+  if(worker->config->pre_load == 1 && worker->config->dep_dist != NULL &&worker->present_recv_index >= worker->config->keysToPreload){
+    pthread_exit(NULL);
+    // printf("You are warmed up, sir\n");
+    // exit(0);
   }
 }//End receiveCallback()
 
@@ -225,7 +232,7 @@ void createWorkers(struct config* config) {
     total_connections += num_worker_connections;
     config->workers[i]->connections = malloc(sizeof(struct conn*) * num_worker_connections);
     config->workers[i]->nConnections = num_worker_connections;
-    config->workers[i]->received_warmup_keys = 0;
+    // config->workers[i]->received_warmup_keys = 0;
     int j;
     int server=i % config->n_servers; 
     for(j = 0; j < num_worker_connections; j++) {
@@ -260,10 +267,13 @@ struct worker* createWorker(struct config* config, int cpuNum) {
   worker->interarrival_time = 0;
   worker->incr_fix_queue_tail = 0; // THSES probably need to be fixed
   worker->incr_fix_queue_head = 0;
-  if(config->dep_dist != NULL && config->pre_load) {
-    worker->warmup_key = config->keysToPreload-1;
-    worker->warmup_key_check = 0;
-  }
+  // if(config->dep_dist != NULL && config->pre_load) {
+  //   worker->warmup_key = config->keysToPreload-1;
+  //   worker->warmup_key_check = 0;
+  // }
+  
+  worker->present_index = cpuNum;
+  worker->present_recv_index = cpuNum;
 
 
   return worker;

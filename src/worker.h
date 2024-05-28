@@ -40,10 +40,12 @@ struct worker {
   int incr_fix_queue_head;
   int incr_fix_queue_tail;
   struct mt19937p myMT19937p;
-  int warmup_key;
-  int warmup_key_check;	
-  int received_warmup_keys;
+  // int warmup_key;
+  // int warmup_key_check;	
+  // int received_warmup_keys;
 
+  int present_index;
+  int present_recv_index;
 };
 
 
